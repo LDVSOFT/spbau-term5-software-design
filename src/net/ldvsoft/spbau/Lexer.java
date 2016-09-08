@@ -40,13 +40,13 @@ public class Lexer {
                 continue;
             }
             /* bare word */ {
-                result.add(nextLexeme(false, Lexer::isVariable, LexemeType.BARE));
+                result.add(nextLexeme(false, Lexer::isWord, LexemeType.BARE));
             }
         }
         return result;
     }
 
-    public List<Lexeme> lexStringForSubtitutions(String str) {
+    public List<Lexeme> lexStringForSubstitutions(String str) {
         init(str);
         List<Lexeme> result = new ArrayList<>();
         while (i != n) {
@@ -80,6 +80,10 @@ public class Lexer {
 
     private static boolean isSpace(char c) {
         return c == ' ' || c == '\t';
+    }
+
+    private static boolean isWord(char c) {
+        return "\'\"| \t".indexOf(c) == -1;
     }
 
     private static boolean isVariable(char c) {

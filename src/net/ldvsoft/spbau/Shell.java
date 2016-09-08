@@ -24,7 +24,7 @@ public class Shell {
 
     /*package*/ boolean processCommand(String command) {
         List<Lexeme> lexemes = lexer.lexCommand(command);
-        List<Lexeme> lexemesAfterSubstitution = subtitute(lexemes);
+        List<Lexeme> lexemesAfterSubstitution = substitute(lexemes);
         return !lexemesAfterSubstitution.isEmpty();
     }
 
@@ -45,19 +45,19 @@ public class Shell {
         }
     }
 
-    private List<Lexeme> subtitute(List<Lexeme> lexems) {
+    private List<Lexeme> substitute(List<Lexeme> lexems) {
         List<Lexeme> result = new ArrayList<>();
         for (Lexeme l1: lexems) {
             switch (l1.getLexemeType()) {
                 case SPACE:
-                case DOUBLE_QUOTED:
                 case PIPE:
+                case QUOTED:
                     result.add(l1);
                     break;
-                case QUOTED:
+                case DOUBLE_QUOTED:
                 case BARE:
                     StringBuilder builder = new StringBuilder();
-                    for (Lexeme l2: lexems) {
+                    for (Lexeme l2: lexer.lexStringForSubstitutions(l1.getLexeme())) {
                         switch (l2.getLexemeType()) {
                             case BARE:
                                 builder.append(l2.getLexeme());
