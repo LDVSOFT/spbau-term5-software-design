@@ -78,6 +78,16 @@ public class Lexer {
         return result;
     }
 
+    public List<Lexeme> expand(String str) {
+        init(str);
+        List<Lexeme> result = new ArrayList<>();
+        while (i != n) {
+            boolean isSpace = isSpace(s.charAt(i));
+            result.add(nextLexeme(false, ch -> isSpace(ch) == isSpace, isSpace ? LexemeType.SPACE : LexemeType.BARE));
+        }
+        return result;
+    }
+
     private static boolean isSpace(char c) {
         return c == ' ' || c == '\t';
     }
