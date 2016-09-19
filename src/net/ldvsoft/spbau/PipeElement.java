@@ -1,33 +1,35 @@
 package net.ldvsoft.spbau;
 
+import net.ldvsoft.spbau.builtins.CatCommand;
+import net.ldvsoft.spbau.builtins.ExitCommand;
 import net.ldvsoft.spbau.builtins.PwdCommand;
+import net.ldvsoft.spbau.builtins.WcCommand;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
 
 /**
  * Created by ldvsoft on 10.09.16.
  */
 /*package*/ class PipeElement {
-    public static final String COMMAND_ASSIGNMENT = "=";
+    /*package*/ static final String COMMAND_ASSIGNMENT = "=";
     private static final Map<String, Command> BUILTINS = new HashMap<>();
     private static final Command PROCESS_COMMAND = new ProcessCommand();
 
     static {
         BUILTINS.put(COMMAND_ASSIGNMENT, new AssignmentCommand());
         BUILTINS.put("pwd", new PwdCommand());
+        BUILTINS.put("exit", new ExitCommand());
+        BUILTINS.put("wc", new WcCommand());
+        BUILTINS.put("cat", new CatCommand());
     }
 
     private Shell shell;
     private String command;
     private List<String> args;
-    private Future<Boolean> result;
 
     /*package*/ PipeElement(Shell shell, String command, List<String> args) {
         this.shell = shell;
@@ -46,21 +48,8 @@ import java.util.concurrent.*;
         return args;
     }
 
-    public void execute(Path inputFile, Path outputFile) throws IOException {
+    /*package*/ void execute(Path inputFile, Path outputFile) throws IOException {
         Command commandRunner = BUILTINS.getOrDefault(command, PROCESS_COMMAND);
         commandRunner.execute(shell, inputFile, outputFile, command, args);
-    }
-
-    public boolean join() {
-        try {
-            return result.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public void stop() {
-        result.cancel(true);
     }
 }

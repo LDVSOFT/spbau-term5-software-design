@@ -28,7 +28,7 @@ public class Shell {
         this.output = output;
     }
 
-    /*package*/ void exit() {
+    public void exit() {
         isWorking = false;
     }
 
@@ -36,11 +36,11 @@ public class Shell {
         environment.put(var, value);
     }
 
-    public InputStream getInput() {
+    /*package*/ InputStream getInput() {
         return input;
     }
 
-    public OutputStream getOutput() {
+    /*package*/ OutputStream getOutput() {
         return output;
     }
 
@@ -68,7 +68,6 @@ public class Shell {
                 }
                 lastOutput = currentOutput;
             }
-            output.write("Hello!\n".getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -86,8 +85,9 @@ public class Shell {
                     processCommand(s);
                 }
             } catch (IOException e) {
-                // FIXME Очень жаль
+                new PrintStream(output).printf("IO error occurred:");
                 e.printStackTrace();
+                exit();
             }
         }
     }
