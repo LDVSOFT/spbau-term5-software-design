@@ -3,10 +3,9 @@ package net.ldvsoft.spbau;
 import net.ldvsoft.spbau.Lexeme.LexemeType;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -15,6 +14,7 @@ import java.util.stream.Collectors;
 public class Shell {
     private InputStream input;
     private OutputStream output;
+    private boolean isWorking = true;
     private Lexer lexer = new Lexer();
     private Map<String, String> environment = new HashMap<>();
 
@@ -28,19 +28,50 @@ public class Shell {
         this.output = output;
     }
 
+    /*package*/ void exit() {
+        isWorking = false;
+    }
+
+    /*package*/ void setVariable(String var, String value) {
+        environment.put(var, value);
+    }
+
+    public InputStream getInput() {
+        return input;
+    }
+
+    public OutputStream getOutput() {
+        return output;
+    }
+
     /**
      * Processes one single command
      * @param command command itself, as given from input
-     * @return true, if next command if waited for
      */
-    /*package*/ boolean processCommand(String command) {
-        List<Lexeme> lexemes = lexer.lexCommand(command);
-        List<Lexeme> lexemesAfterSubstitution = substitute(lexemes);
-        List<Lexeme> lexemesAfterExpand = expand(lexemesAfterSubstitution);
-        List<Lexeme> lexemesAfterCollapse = collapse(lexemesAfterExpand);
+    /*package*/ void processCommand(String command) {
+        try {
+            List<Lexeme> lexemes = lexer.lexCommand(command);
+            List<Lexeme> lexemesAfterSubstitution = substitute(lexemes);
+            List<Lexeme> lexemesAfterExpand = expand(lexemesAfterSubstitution);
+            List<Lexeme> lexemesAfterCollapse = collapse(lexemesAfterExpand);
 
-        List<PipeElement> pipeElements = splitPipe(lexemesAfterCollapse);
-        return !pipeElements.isEmpty();
+            List<PipeElement> pipeElements = splitPipe(lexemesAfterCollapse);
+            Path lastOutput = null;
+            for (int i = 0; i != pipeElements.size(); i++) {
+                Path currentOutput = null;
+                if (i != pipeElements.size() - 1) {
+                    currentOutput = Files.createTempFile("", "");
+                }
+                pipeElements.get(i).execute(lastOutput, currentOutput);
+                if (i != 0) {
+                    Files.delete(lastOutput);
+                }
+                lastOutput = currentOutput;
+            }
+            output.write("Hello!\n".getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -48,13 +79,11 @@ public class Shell {
      */
     private void work() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-        boolean continueWork = true;
-        while (continueWork) {
-            continueWork = false;
+        while (isWorking) {
             try {
                 String s = reader.readLine();
                 if (s != null) {
-                    continueWork = processCommand(s);
+                    processCommand(s);
                 }
             } catch (IOException e) {
                 // FIXME Очень жаль
@@ -115,21 +144,18 @@ public class Shell {
     }
 
     /**
-     * Strims spaces lexemes and collapses touching words into one.
+     * Collapses touching words into one, like before `a"b"c' was three lexemes, and will become one `abc'.
      * @param lexemes list of lexemes
      * @return list of lexemes after collapsing
      */
     private List<Lexeme> collapse(List<Lexeme> lexemes) {
         List<Lexeme> result = new ArrayList<>();
-        int i = 0;
         int n = lexemes.size();
-        while (i != n) {
+        for (int i = 0; i < n; i++) {
             Lexeme l1 = lexemes.get(i);
             switch (l1.getLexemeType()) {
-                case SPACE:
-                    // Trim spaces
-                    break;
                 case PIPE:
+                case SPACE:
                     // Just leave as is
                     result.add(l1);
                     break;
@@ -138,7 +164,8 @@ public class Shell {
                 case DOUBLE_QUOTED:
                     // Collapse words together
                     StringBuilder builder = new StringBuilder();
-                    for (int j = i; j != n; j++) {
+                    int j;
+                    for (j = i; j != n; j++) {
                         Lexeme l2 = lexemes.get(j);
                         LexemeType l2type = l2.getLexemeType();
                         if (l2type != LexemeType.BARE
@@ -148,6 +175,7 @@ public class Shell {
                         }
                         builder.append(l2.getLexeme());
                     }
+                    i = j - 1;
                     result.add(new Lexeme(LexemeType.BARE, builder.toString()));
                     break;
             }
@@ -165,6 +193,10 @@ public class Shell {
         int i = 0;
         int n = lexemes.size();
         while (i < n) {
+            if (lexemes.get(i).getLexemeType() == LexemeType.SPACE) {
+                i++;
+                continue;
+            }
             int j = i;
             while (j != n && lexemes.get(j).getLexemeType() != LexemeType.PIPE) {
                 j++;
@@ -172,10 +204,27 @@ public class Shell {
             if (j == i) {
                 // FIXME Syntax error: empty pipe element
             }
+            String command = lexemes.get(i).getLexeme();
             List<String> args = lexemes.subList(i + 1, j).stream()
                     .map(Lexeme::getLexeme)
                     .collect(Collectors.toList());
-            result.add(new CommandInvocation(lexemes.get(i).getLexeme(), args)); // FIXME Assignments!
+            if (command.contains(PipeElement.COMMAND_ASSIGNMENT)) {
+                int pos = command.indexOf(PipeElement.COMMAND_ASSIGNMENT);
+                String var = command.substring(0, pos);
+                StringBuilder valueBuilder = new StringBuilder();
+                valueBuilder.append(command.substring(Math.min(pos + 1, command.length())));
+                for (String arg: args) {
+                    valueBuilder.append(arg);
+                }
+                String value = valueBuilder.toString();
+                result.add(new PipeElement(this, PipeElement.COMMAND_ASSIGNMENT, Arrays.asList(var, value)));
+            } else {
+                args = lexemes.subList(i + 1, j).stream()
+                        .filter(lexeme -> lexeme.getLexemeType() != LexemeType.SPACE)
+                        .map(Lexeme::getLexeme)
+                        .collect(Collectors.toList());
+                result.add(new PipeElement(this, command, args));
+            }
             i = j + 1;
         }
         return result;

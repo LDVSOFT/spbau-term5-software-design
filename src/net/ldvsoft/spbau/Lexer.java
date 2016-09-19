@@ -9,12 +9,12 @@ import java.util.function.Predicate;
 /**
  * Created by ldvsoft on 08.09.16.
  */
-public class Lexer {
+/*package*/ class Lexer {
     private String s;
     private int n;
     private int i;
 
-    public List<Lexeme> lexCommand(String command) {
+    /*package*/ List<Lexeme> lexCommand(String command) {
         init(command);
         List<Lexeme> result = new ArrayList<>();
         for (i = 0; i != n; i++) {
@@ -46,7 +46,7 @@ public class Lexer {
         return result;
     }
 
-    public List<Lexeme> lexStringForSubstitutions(String str) {
+    /*package*/ List<Lexeme> lexStringForSubstitutions(String str) {
         init(str);
         List<Lexeme> result = new ArrayList<>();
         while (i != n) {
@@ -78,10 +78,10 @@ public class Lexer {
         return result;
     }
 
-    public List<Lexeme> expand(String str) {
+    /*package*/ List<Lexeme> expand(String str) {
         init(str);
         List<Lexeme> result = new ArrayList<>();
-        while (i != n) {
+        for (i = 0; i != n; i++) {
             boolean isSpace = isSpace(s.charAt(i));
             result.add(nextLexeme(false, ch -> isSpace(ch) == isSpace, isSpace ? LexemeType.SPACE : LexemeType.BARE));
         }
