@@ -4,13 +4,13 @@ import net.ldvsoft.spbau.Command;
 import net.ldvsoft.spbau.Shell;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.List;
 
 /**
- * Created by ldvsoft on 19.09.16.
+ * Echo builtin command.
+ * Just outputs all arguments.
  */
 public class EchoCommand implements Command {
     @Override

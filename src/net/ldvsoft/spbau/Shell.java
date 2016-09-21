@@ -9,7 +9,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Created by ldvsoft on 08.09.16.
+ * Shell class.
+ * Runs a loop of commands reading and executing.
  */
 public class Shell {
     private InputStream input;
@@ -18,20 +19,40 @@ public class Shell {
     private Lexer lexer = new Lexer();
     private Map<String, String> environment = new HashMap<>();
 
-    public static void main(String[] args) {
+    /**
+     * Shell main program method
+     * @param args program arguments
+     */
+    public static void main(String... args) {
         Shell shell = new Shell(System.in, System.out);
         shell.work();
     }
 
-    /*package*/ Shell(InputStream input, OutputStream output) {
+    /**
+     * Constructs a shell on given input and output.
+     * @param input shell input stream.
+     * @param output shell output stream.
+     */
+    public Shell(InputStream input, OutputStream output) {
         this.input = input;
         this.output = output;
     }
 
+    /**
+     * Exits shell.
+     * This method is for invoking from commands like `exit' to stop shell execution.
+     * After invocation of this method, shell won't read the next command.
+     */
     public void exit() {
         isWorking = false;
     }
 
+    /**
+     * Set environment variable in shell.
+     * This method is for invoking from commands like assignments.
+     * @param var variable name
+     * @param value variable new value
+     */
     /*package*/ void setVariable(String var, String value) {
         environment.put(var, value);
     }
@@ -48,7 +69,7 @@ public class Shell {
      * Processes one single command
      * @param command command itself, as given from input
      */
-    /*package*/ void processCommand(String command) {
+    private void processCommand(String command) {
         try {
             List<Lexeme> lexemes = lexer.lexCommand(command);
             List<Lexeme> lexemesAfterSubstitution = substitute(lexemes);
@@ -115,7 +136,7 @@ public class Shell {
                                 builder.append(l2.getLexeme());
                                 break;
                             case VARIABLE:
-                                builder.append(environment.getOrDefault(l2.getLexeme(), "")); // FIXME
+                                builder.append(environment.getOrDefault(l2.getLexeme(), ""));
                                 break;
                         }
                     }
@@ -144,7 +165,7 @@ public class Shell {
     }
 
     /**
-     * Collapses touching words into one, like before `a"b"c' was three lexemes, and will become one `abc'.
+     * Collapses touching words into one, like before `a"b"'c'' was three lexemes, and will become one `abc'.
      * @param lexemes list of lexemes
      * @return list of lexemes after collapsing
      */
@@ -213,9 +234,7 @@ public class Shell {
                 String var = command.substring(0, pos);
                 StringBuilder valueBuilder = new StringBuilder();
                 valueBuilder.append(command.substring(Math.min(pos + 1, command.length())));
-                for (String arg: args) {
-                    valueBuilder.append(arg);
-                }
+                args.forEach(valueBuilder::append);
                 String value = valueBuilder.toString();
                 result.add(new PipeElement(this, PipeElement.COMMAND_ASSIGNMENT, Arrays.asList(var, value)));
             } else {

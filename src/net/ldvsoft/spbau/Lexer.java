@@ -7,13 +7,19 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * Created by ldvsoft on 08.09.16.
+ * Shell command lexer.
+ * Splits strings to lexemes in different ways that are required by steps of command parsing.
  */
 /*package*/ class Lexer {
     private String s;
     private int n;
     private int i;
 
+    /**
+     * Splits command into it's generic parts -- pipe elements and words (bare, quoted, ...)
+     * @param command command
+     * @return list of lexemes
+     */
     /*package*/ List<Lexeme> lexCommand(String command) {
         init(command);
         List<Lexeme> result = new ArrayList<>();
@@ -46,6 +52,12 @@ import java.util.function.Predicate;
         return result;
     }
 
+    /**
+     * Finds variable names in given string.
+     * That is used in the substitution of variable values.
+     * @param str string to find variable names withing
+     * @return lexified string: bare words and variable names
+     */
     /*package*/ List<Lexeme> lexStringForSubstitutions(String str) {
         init(str);
         List<Lexeme> result = new ArrayList<>();
@@ -78,6 +90,11 @@ import java.util.function.Predicate;
         return result;
     }
 
+    /**
+     * Expand string by spaces into words.
+     * @param str string
+     * @return list of lexemes: bare words and spaces.
+     */
     /*package*/ List<Lexeme> expand(String str) {
         init(str);
         List<Lexeme> result = new ArrayList<>();

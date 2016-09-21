@@ -1,9 +1,18 @@
 package net.ldvsoft.spbau;
 
 /**
- * Created by ldvsoft on 08.09.16.
+ * Shell command lexeme.
  */
 /*package*/ class Lexeme {
+    /**
+     * Lexeme type enum
+     * 1. SPACE - spaces
+     * 2. BARE - bare word, unquoted
+     * 3. QUOTED - single quoted string (with ')
+     * 4. DOUBLE_QUOTED - double quoted string (with ")
+     * 5. PIPE - pipe symbol (only `|' has it)
+     * 6. VARIABLE - variable name
+     */
     /*package*/ enum LexemeType {
         SPACE,
         BARE,
@@ -16,19 +25,24 @@ package net.ldvsoft.spbau;
     private LexemeType lexemeType;
     private String lexeme;
 
-    Lexeme(LexemeType lexemeType, String lexeme) {
+    /*package*/ Lexeme(LexemeType lexemeType, String lexeme) {
         this.lexemeType = lexemeType;
         this.lexeme = lexeme;
     }
 
-    public LexemeType getLexemeType() {
+    /*package*/ LexemeType getLexemeType() {
         return lexemeType;
     }
 
-    public String getLexeme() {
+    /*package*/ String getLexeme() {
         return lexeme;
     }
 
+    /**
+     * String representation of lexeme, just for debug purposes.
+     * To gain the real lexeme content, use @see getLexeme method
+     * @return string representation of lexeme
+     */
     @Override
     public String toString() {
         switch (lexemeType) {

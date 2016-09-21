@@ -10,7 +10,8 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Created by ldvsoft on 13.09.16.
+ * Pwd builtin command.
+ * Outputs current working directory.
  */
 public class PwdCommand implements Command {
     @Override

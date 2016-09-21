@@ -12,7 +12,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by ldvsoft on 10.09.16.
+ * Pipe element.
+ * Holds command name and it's arguments, and starts it's invocation.
+ * Invocation is performed in two ways:
+ * -> If there is a builtin for given command, it is invoked
+ * -> Else, the generic Process runner is invoked.
  */
 /*package*/ class PipeElement {
     /*package*/ static final String COMMAND_ASSIGNMENT = "=";

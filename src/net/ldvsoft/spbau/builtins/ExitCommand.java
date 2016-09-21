@@ -8,7 +8,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * Created by ldvsoft on 19.09.16.
+ * Exit builtin command.
+ * Just sends shell a message to stop.
  */
 public class ExitCommand implements Command {
     @Override

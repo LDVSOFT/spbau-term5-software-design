@@ -6,16 +6,19 @@ import net.ldvsoft.spbau.Shell;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 
 /**
- * Created by ldvsoft on 19.09.16.
+ * Wc builtin command.
+ * Counts characters, words and lines in given files.
+ * If no files are given, input is being read.
  */
 public class WcCommand implements Command {
+    private static final String STDIN_FILE_NAME = "-";
+
     @Override
     public void execute(Shell shell, Path inputFile, Path outputFile, String command, List<String> args) throws IOException {
         if (args.size() == 0) {
-            args.add("-");
+            args.add(STDIN_FILE_NAME);
         }
         InputStream in = Command.getInputStream(shell, inputFile);
         PrintStream out = new PrintStream(Command.getOutputStream(shell, outputFile));

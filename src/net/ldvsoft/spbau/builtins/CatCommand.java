@@ -8,11 +8,13 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * Created by ldvsoft on 19.09.16.
+ * Cat builtin command.
+ * Takes all files given as arguments and outputs their concatenation.
+ * If no arguments are given, input is being read.
  */
 public class CatCommand implements Command {
-
-    public static final int BUFFER_SIZE = 4096;
+    private static final int BUFFER_SIZE = 4096;
+    private static final String STDIN_FILE_NAME = "-";
 
     @Override
     public void execute(Shell shell, Path inputFile, Path outputFile, String command, List<String> args) throws IOException {
@@ -24,7 +26,7 @@ public class CatCommand implements Command {
         for (String file: args) {
             try {
                 InputStream fileIn;
-                if (file.equals("-")) {
+                if (file.equals(STDIN_FILE_NAME)) {
                     fileIn = in;
                 } else {
                     fileIn = new FileInputStream(file);

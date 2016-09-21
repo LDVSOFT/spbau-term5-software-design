@@ -4,9 +4,10 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * Created by ldvsoft on 13.09.16.
+ * Assignment command.
+ * Takes the form `var=value', this form is specially parsed by the shell.
  */
-public class AssignmentCommand implements Command {
+/*package*/ class AssignmentCommand implements Command {
     @Override
     public void execute(Shell shell, Path inputFile, Path outputFile, String command, List<String> args) {
         shell.setVariable(args.get(0), args.get(1));
