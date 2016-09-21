@@ -1,9 +1,6 @@
 package net.ldvsoft.spbau;
 
-import net.ldvsoft.spbau.builtins.CatCommand;
-import net.ldvsoft.spbau.builtins.ExitCommand;
-import net.ldvsoft.spbau.builtins.PwdCommand;
-import net.ldvsoft.spbau.builtins.WcCommand;
+import net.ldvsoft.spbau.builtins.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -29,6 +26,7 @@ import java.util.Map;
         BUILTINS.put("exit", new ExitCommand());
         BUILTINS.put("wc", new WcCommand());
         BUILTINS.put("cat", new CatCommand());
+        BUILTINS.put("echo", new EchoCommand());
     }
 
     private Shell shell;

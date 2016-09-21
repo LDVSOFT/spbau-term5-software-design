@@ -16,6 +16,6 @@ public class EchoCommand implements Command {
     @Override
     public void execute(Shell shell, Path inputFile, Path outputFile, String command, List<String> args) throws IOException {
         PrintStream out = new PrintStream(Command.getOutputStream(shell, outputFile));
-        out.print(String.join(" ", args));
+        out.println(String.join(" ", args));
     }
 }

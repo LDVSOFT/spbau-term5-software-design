@@ -99,7 +99,7 @@ public class Shell {
     /**
      * Do work loop: read command, execute it.
      */
-    private void work() {
+    /*package*/ void work() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         while (isWorking) {
             try {
