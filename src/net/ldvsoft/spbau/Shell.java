@@ -91,6 +91,8 @@ public class Shell {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (SyntaxError e) {
+            new PrintStream(output).println(e.getMessage());
         }
     }
 
@@ -208,8 +210,9 @@ public class Shell {
      * Split lexemes into pipe elements
      * @param lexemes list of lexemes
      * @return list of pipe elements
+     * @throws SyntaxError in case the is empty pipe element (i.e., `echo 123 | | cat')
      */
-    private List<PipeElement> splitPipe(List<Lexeme> lexemes) {
+    private List<PipeElement> splitPipe(List<Lexeme> lexemes) throws SyntaxError {
         ArrayList<PipeElement> result = new ArrayList<>();
         int i = 0;
         int n = lexemes.size();
@@ -223,7 +226,7 @@ public class Shell {
                 j++;
             }
             if (j == i) {
-                // FIXME Syntax error: empty pipe element
+                throw new SyntaxError("Empty pipe element!");
             }
             String command = lexemes.get(i).getLexeme();
             List<String> args = lexemes.subList(i + 1, j).stream()

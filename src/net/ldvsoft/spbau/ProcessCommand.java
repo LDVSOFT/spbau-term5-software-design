@@ -22,8 +22,7 @@ public class ProcessCommand implements Command {
                     .redirectOutput((outputFile == null) ? Redirect.INHERIT : Redirect.to(outputFile.toFile()))
                     .start()
                     .waitFor();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException ignored) {
         }
     }
 }

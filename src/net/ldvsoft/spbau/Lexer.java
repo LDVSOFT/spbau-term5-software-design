@@ -19,8 +19,9 @@ import java.util.function.Predicate;
      * Splits command into it's generic parts -- pipe elements and words (bare, quoted, ...)
      * @param command command
      * @return list of lexemes
+     * @throws SyntaxError in case quotes cannot be paired
      */
-    /*package*/ List<Lexeme> lexCommand(String command) {
+    /*package*/ List<Lexeme> lexCommand(String command) throws SyntaxError {
         init(command);
         List<Lexeme> result = new ArrayList<>();
         for (i = 0; i != n; i++) {
@@ -40,7 +41,7 @@ import java.util.function.Predicate;
                         (c == '\'' ? LexemeType.QUOTED : LexemeType.DOUBLE_QUOTED)
                 );
                 if (lexeme == null) {
-                    // FIXME syntax error
+                    throw new SyntaxError(String.format("Unclosed bracket %c at position %d", c, i + 1));
                 }
                 result.add(lexeme);
                 continue;
@@ -80,10 +81,12 @@ import java.util.function.Predicate;
                 while (j != n && isVariable(s.charAt(j))) {
                     j++;
                 }
+                // In case j == i + 1, it's actually just a dollar sign, not a variable name
                 if (j == i + 1) {
-                    // FIXME syntax error
+                    result.add(new Lexeme(LexemeType.BARE, s.substring(i, j)));
+                } else {
+                    result.add(new Lexeme(LexemeType.VARIABLE, s.substring(i + 1, j)));
                 }
-                result.add(new Lexeme(LexemeType.VARIABLE, s.substring(i + 1, j)));
                 i = j;
             }
         }
