@@ -27,6 +27,7 @@ import java.util.Map;
         BUILTINS.put("wc", new WcCommand());
         BUILTINS.put("cat", new CatCommand());
         BUILTINS.put("echo", new EchoCommand());
+        BUILTINS.put("grep", new GrepCommand());
     }
 
     private Shell shell;
