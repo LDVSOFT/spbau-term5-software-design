@@ -25,7 +25,7 @@ public class WcCommand implements Command {
         for (String file: args) {
             try {
                 InputStream fileIn;
-                if (file.equals("-")) {
+                if (file.equals(STDIN_FILE_NAME)) {
                     fileIn = in;
                 } else {
                     fileIn = new FileInputStream(file);
@@ -45,7 +45,7 @@ public class WcCommand implements Command {
                     }
                 }
                 out.printf("%8d %8d %8d %s\n", lineCount, wordCount, charCount, file);
-                if (!file.equals("-")) {
+                if (!file.equals(STDIN_FILE_NAME)) {
                     fileIn.close();
                 }
             } catch (IOException e) {
