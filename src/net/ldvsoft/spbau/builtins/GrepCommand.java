@@ -34,6 +34,41 @@ public class GrepCommand implements Command {
         );
     }
 
+    private static void processFile(String file, InputStream in, PrintStream out, int appendLines, Pattern pattern) {
+        try {
+            InputStream fileIn;
+            if (file.equals(STDIN_FILE_NAME)) {
+                fileIn = in;
+            } else {
+                fileIn = new FileInputStream(file);
+            }
+            ArrayList<String> buffer = new ArrayList<>();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fileIn));
+            String s;
+            while ((s = reader.readLine()) != null) {
+                if (buffer.size() < appendLines + 1) {
+                    buffer.add(s);
+                } else {
+                    Collections.rotate(buffer, -1);
+                    buffer.set(appendLines, s);
+                    tryMatch(buffer, pattern, appendLines, out);
+                }
+            }
+            if (buffer.size() == appendLines + 1) {
+                buffer.remove(0);
+            }
+            while (!buffer.isEmpty()) {
+                tryMatch(buffer, pattern, appendLines, out);
+                buffer.remove(0);
+            }
+            if (!file.equals(STDIN_FILE_NAME)) {
+                fileIn.close();
+            }
+        } catch (IOException e) {
+            out.printf("grep: IO error occurred on file \"%s\": %s\n", file, e.getMessage());
+        }
+    }
+
     private static void tryMatch(List<String> buffer, Pattern pattern, int appendLines, PrintStream out) {
         if (pattern.matcher(buffer.get(0)).find()) {
             for (int j = 0; j < Math.min(appendLines + 1, buffer.size()); ++j) {
@@ -75,38 +110,7 @@ public class GrepCommand implements Command {
                 fileArgs.add(STDIN_FILE_NAME);
             }
             for (String file: fileArgs) {
-                try {
-                    InputStream fileIn;
-                    if (file.equals(STDIN_FILE_NAME)) {
-                        fileIn = in;
-                    } else {
-                        fileIn = new FileInputStream(file);
-                    }
-                    ArrayList<String> buffer = new ArrayList<>();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(fileIn));
-                    String s;
-                    while ((s = reader.readLine()) != null) {
-                        if (buffer.size() < appendLines + 1) {
-                            buffer.add(s);
-                        } else {
-                            Collections.rotate(buffer, -1);
-                            buffer.set(appendLines, s);
-                            tryMatch(buffer, pattern, appendLines, out);
-                        }
-                    }
-                    if (buffer.size() == appendLines + 1) {
-                        buffer.remove(0);
-                    }
-                    while (!buffer.isEmpty()) {
-                        tryMatch(buffer, pattern, appendLines, out);
-                        buffer.remove(0);
-                    }
-                    if (!file.equals(STDIN_FILE_NAME)) {
-                        fileIn.close();
-                    }
-                } catch (IOException e) {
-                    out.printf("grep: IO error occurred on file \"%s\": %s\n", file, e.getMessage());
-                }
+                processFile(file, in, out, appendLines, pattern);
             }
         } catch (ParseException | NumberFormatException e) {
             out.printf("grep: Command line error: %s\n", e.getMessage());
