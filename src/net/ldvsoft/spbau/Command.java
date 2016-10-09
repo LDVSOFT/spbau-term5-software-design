@@ -12,10 +12,20 @@ import java.util.List;
  * Provides `execute' method that allows to execute shell commands.
  */
 public interface Command {
+    /**
+     * Helper method to open output stream.
+     * @param shell Shell, from which the stream will be received in case working not with pipe
+     * @param outputFile Output file name, or null to use shell output
+     */
     static OutputStream getOutputStream(Shell shell, Path outputFile) throws IOException {
         return (outputFile == null) ? shell.getOutput() : Files.newOutputStream(outputFile);
     }
 
+    /**
+     * Helper method to open input stream.
+     * @param shell Shell, from which the stream will be received in case working not with pipe
+     * @param inputFile Input file name, or null to read shell input
+     */
     static InputStream getInputStream(Shell shell, Path inputFile) throws IOException {
         return (inputFile == null) ? shell.getInput() : Files.newInputStream(inputFile);
     }
