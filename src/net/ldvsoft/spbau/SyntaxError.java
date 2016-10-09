@@ -1,7 +1,8 @@
 package net.ldvsoft.spbau;
 
 /**
- * Created by ldvsoft on 21.09.16.
+ * Syntax error exception. It reports different errors when shell cannot
+ * parse command.
  */
 public class SyntaxError extends Exception {
     public SyntaxError(String message) {
