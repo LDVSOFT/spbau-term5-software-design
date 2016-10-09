@@ -11,9 +11,9 @@ import java.util.function.Predicate;
  * Splits strings to lexemes in different ways that are required by steps of command parsing.
  */
 class Lexer {
-    private String s;
-    private int n;
-    private int i;
+    private String parsingString;
+    private int stringLen;
+    private int currentPos;
 
     /**
      * Splits command into it's generic parts -- pipe elements and words (bare, quoted, ...)
@@ -24,8 +24,8 @@ class Lexer {
     List<Lexeme> lexCommand(String command) throws SyntaxError {
         init(command);
         List<Lexeme> result = new ArrayList<>();
-        for (i = 0; i != n; i++) {
-            char c = s.charAt(i);
+        for (currentPos = 0; currentPos != stringLen; currentPos++) {
+            char c = parsingString.charAt(currentPos);
             if (isSpace(c)) {
                 result.add(nextLexeme(false, Lexer::isSpace, LexemeType.SPACE));
                 continue;
@@ -41,7 +41,7 @@ class Lexer {
                         (c == '\'' ? LexemeType.QUOTED : LexemeType.DOUBLE_QUOTED)
                 );
                 if (lexeme == null) {
-                    throw new SyntaxError(String.format("Unclosed bracket %c at position %d", c, i + 1));
+                    throw new SyntaxError(String.format("Unclosed bracket %c at position %d", c, currentPos + 1));
                 }
                 result.add(lexeme);
                 continue;
@@ -62,32 +62,32 @@ class Lexer {
     List<Lexeme> lexStringForSubstitutions(String str) {
         init(str);
         List<Lexeme> result = new ArrayList<>();
-        while (i != n) {
+        while (currentPos != stringLen) {
             /* non-variable */ {
-                int j = i;
-                while (j != n && s.charAt(j) != '$') {
+                int j = currentPos;
+                while (j != stringLen && parsingString.charAt(j) != '$') {
                     j++;
                 }
-                if (i != j) {
-                    result.add(new Lexeme(LexemeType.BARE, s.substring(i, j)));
-                    i = j;
+                if (currentPos != j) {
+                    result.add(new Lexeme(LexemeType.BARE, parsingString.substring(currentPos, j)));
+                    currentPos = j;
                 }
             }
-            if (i == n || s.charAt(i) != '$') {
+            if (currentPos == stringLen || parsingString.charAt(currentPos) != '$') {
                 continue;
             }
             /* variable */ {
-                int j = i + 1;
-                while (j != n && isVariable(s.charAt(j))) {
+                int j = currentPos + 1;
+                while (j != stringLen && isVariable(parsingString.charAt(j))) {
                     j++;
                 }
-                // In case j == i + 1, it's actually just a dollar sign, not a variable name
-                if (j == i + 1) {
-                    result.add(new Lexeme(LexemeType.BARE, s.substring(i, j)));
+                // In case j == currentPos + 1, it's actually just a dollar sign, not a variable name
+                if (j == currentPos + 1) {
+                    result.add(new Lexeme(LexemeType.BARE, parsingString.substring(currentPos, j)));
                 } else {
-                    result.add(new Lexeme(LexemeType.VARIABLE, s.substring(i + 1, j)));
+                    result.add(new Lexeme(LexemeType.VARIABLE, parsingString.substring(currentPos + 1, j)));
                 }
-                i = j;
+                currentPos = j;
             }
         }
         return result;
@@ -101,8 +101,8 @@ class Lexer {
     List<Lexeme> expand(String str) {
         init(str);
         List<Lexeme> result = new ArrayList<>();
-        for (i = 0; i != n; i++) {
-            boolean isSpace = isSpace(s.charAt(i));
+        for (currentPos = 0; currentPos != stringLen; currentPos++) {
+            boolean isSpace = isSpace(parsingString.charAt(currentPos));
             result.add(nextLexeme(false, ch -> isSpace(ch) == isSpace, isSpace ? LexemeType.SPACE : LexemeType.BARE));
         }
         return result;
@@ -121,22 +121,22 @@ class Lexer {
     }
 
     private Lexeme nextLexeme(boolean isQuoted, Predicate<Character> continuePredicate, LexemeType type) {
-        int start = i + (isQuoted ? 1 : 0);
+        int start = currentPos + (isQuoted ? 1 : 0);
         int end = start;
-        while (end != n && continuePredicate.test(s.charAt(end))) {
+        while (end != stringLen && continuePredicate.test(parsingString.charAt(end))) {
             end++;
         }
-        if (isQuoted && end == n) {
+        if (isQuoted && end == stringLen) {
             //syntax error
             return null;
         }
-        i = end + (isQuoted ? 0 : -1);
-        return new Lexeme(type, s.substring(start, end));
+        currentPos = end + (isQuoted ? 0 : -1);
+        return new Lexeme(type, parsingString.substring(start, end));
     }
 
     private void init(String str) {
-        s = str;
-        n = s.length();
-        i = 0;
+        parsingString = str;
+        stringLen = parsingString.length();
+        currentPos = 0;
     }
 }
