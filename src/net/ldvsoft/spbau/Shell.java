@@ -53,15 +53,15 @@ public class Shell {
      * @param var variable name
      * @param value variable new value
      */
-    /*package*/ void setVariable(String var, String value) {
+    void setVariable(String var, String value) {
         environment.put(var, value);
     }
 
-    /*package*/ InputStream getInput() {
+    InputStream getInput() {
         return input;
     }
 
-    /*package*/ OutputStream getOutput() {
+    OutputStream getOutput() {
         return output;
     }
 
@@ -99,7 +99,7 @@ public class Shell {
     /**
      * Do work loop: read command, execute it.
      */
-    /*package*/ void work() {
+    void work() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         while (isWorking) {
             try {

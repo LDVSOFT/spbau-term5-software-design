@@ -10,7 +10,7 @@ import java.util.function.Predicate;
  * Shell command lexer.
  * Splits strings to lexemes in different ways that are required by steps of command parsing.
  */
-/*package*/ class Lexer {
+class Lexer {
     private String s;
     private int n;
     private int i;
@@ -21,7 +21,7 @@ import java.util.function.Predicate;
      * @return list of lexemes
      * @throws SyntaxError in case quotes cannot be paired
      */
-    /*package*/ List<Lexeme> lexCommand(String command) throws SyntaxError {
+    List<Lexeme> lexCommand(String command) throws SyntaxError {
         init(command);
         List<Lexeme> result = new ArrayList<>();
         for (i = 0; i != n; i++) {
@@ -59,7 +59,7 @@ import java.util.function.Predicate;
      * @param str string to find variable names withing
      * @return lexified string: bare words and variable names
      */
-    /*package*/ List<Lexeme> lexStringForSubstitutions(String str) {
+    List<Lexeme> lexStringForSubstitutions(String str) {
         init(str);
         List<Lexeme> result = new ArrayList<>();
         while (i != n) {
@@ -98,7 +98,7 @@ import java.util.function.Predicate;
      * @param str string
      * @return list of lexemes: bare words and spaces.
      */
-    /*package*/ List<Lexeme> expand(String str) {
+    List<Lexeme> expand(String str) {
         init(str);
         List<Lexeme> result = new ArrayList<>();
         for (i = 0; i != n; i++) {

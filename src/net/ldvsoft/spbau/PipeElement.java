@@ -15,8 +15,8 @@ import java.util.Map;
  * -> If there is a builtin for given command, it is invoked
  * -> Else, the generic Process runner is invoked.
  */
-/*package*/ class PipeElement {
-    /*package*/ static final String COMMAND_ASSIGNMENT = "=";
+class PipeElement {
+    static final String COMMAND_ASSIGNMENT = "=";
     private static final Map<String, Command> BUILTINS = new HashMap<>();
     private static final Command PROCESS_COMMAND = new ProcessCommand();
 
@@ -33,7 +33,7 @@ import java.util.Map;
     private String command;
     private List<String> args;
 
-    /*package*/ PipeElement(Shell shell, String command, List<String> args) {
+    PipeElement(Shell shell, String command, List<String> args) {
         this.shell = shell;
         this.command = command;
         this.args = args;
@@ -50,7 +50,7 @@ import java.util.Map;
         return args;
     }
 
-    /*package*/ void execute(Path inputFile, Path outputFile) throws IOException {
+    void execute(Path inputFile, Path outputFile) throws IOException {
         Command commandRunner = BUILTINS.getOrDefault(command, PROCESS_COMMAND);
         commandRunner.execute(shell, inputFile, outputFile, command, args);
     }

@@ -3,7 +3,7 @@ package net.ldvsoft.spbau;
 /**
  * Shell command lexeme.
  */
-/*package*/ class Lexeme {
+class Lexeme {
     /**
      * Lexeme type enum
      * 1. SPACE - spaces
@@ -13,7 +13,7 @@ package net.ldvsoft.spbau;
      * 5. PIPE - pipe symbol (only `|' has it)
      * 6. VARIABLE - variable name
      */
-    /*package*/ enum LexemeType {
+    enum LexemeType {
         SPACE,
         BARE,
         QUOTED,
@@ -25,16 +25,16 @@ package net.ldvsoft.spbau;
     private LexemeType lexemeType;
     private String lexeme;
 
-    /*package*/ Lexeme(LexemeType lexemeType, String lexeme) {
+    Lexeme(LexemeType lexemeType, String lexeme) {
         this.lexemeType = lexemeType;
         this.lexeme = lexeme;
     }
 
-    /*package*/ LexemeType getLexemeType() {
+    LexemeType getLexemeType() {
         return lexemeType;
     }
 
-    /*package*/ String getLexeme() {
+    String getLexeme() {
         return lexeme;
     }
 
