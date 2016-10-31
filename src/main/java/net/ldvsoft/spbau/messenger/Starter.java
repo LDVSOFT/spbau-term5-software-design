@@ -51,6 +51,9 @@ public class Starter {
         }
     }
 
+    private Starter() {
+    }
+
     public static Connection startServer(int port) throws IOException {
         ServerSocket serverSocket = new ServerSocket(port);
         Socket socket = serverSocket.accept();

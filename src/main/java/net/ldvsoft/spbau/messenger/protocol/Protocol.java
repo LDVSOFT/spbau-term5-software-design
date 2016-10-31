@@ -10,7 +10,7 @@ import java.io.*;
  * To read a message, one should first call readMessageType(),
  * and then call apropriate read<...> method to get the contents.
  */
-public class Protocol {
+public class Protocol implements AutoCloseable {
     /**
      * All message types are represented by MessageType enum.
      * Every message starts with it's type id, which are hold by MessageType values.
@@ -36,7 +36,7 @@ public class Protocol {
                     return type;
                 }
             }
-            return null;
+            throw new IllegalArgumentException();
         }
     }
 
