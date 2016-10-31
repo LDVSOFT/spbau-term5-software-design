@@ -5,8 +5,16 @@ import java.io.*;
 /**
  * Messenger protocol.
  * Handles all the IO tasks: read request, read it's body, send the answer.
+ *
+ * To write a message, one should call the write<...> method.
+ * To read a message, one should first call readMessageType(),
+ * and then call apropriate read<...> method to get the contents.
  */
 public class Protocol {
+    /**
+     * All message types are represented by MessageType enum.
+     * Every message starts with it's type id, which are hold by MessageType values.
+     */
     public enum MessageType {
         PEER_INFO(0),
         TEXT_MESSAGE(1),
@@ -72,6 +80,7 @@ public class Protocol {
     }
 
     public void readBye() {
+        /* bye message is empty and has no body */
     }
 
     public void writeBye() throws IOException {

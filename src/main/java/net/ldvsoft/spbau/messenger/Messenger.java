@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * Created by ldvsoft on 26.10.16.
+ * Messenger main behaviour class.
+ * After creating, starts waiting for incoming messages and reports them.
+ * Gives methods for sending messages.
  */
 public class Messenger {
     private static final String DEFAULT_NAME = "<unknown>";
@@ -36,9 +38,10 @@ public class Messenger {
         listenerThread.start();
     }
 
-    public void sendMessage(String text) throws IOException {
+    public TextMessage sendMessage(String text) throws IOException {
         TextMessage textMessage = new TextMessage(text, new Date());
         protocol.writeTextMessage(textMessage);
+        return textMessage;
     }
 
     public void setName(String name) throws IOException {
@@ -51,6 +54,7 @@ public class Messenger {
             isWorking = false;
             listenerThread.interrupt();
             protocol.writeBye();
+            protocol.close();
         }
     }
 
@@ -80,6 +84,7 @@ public class Messenger {
                         protocol.readBye();
                         isWorking = false;
                         listener.onBye();
+                        protocol.close();
                         break;
                 }
             }

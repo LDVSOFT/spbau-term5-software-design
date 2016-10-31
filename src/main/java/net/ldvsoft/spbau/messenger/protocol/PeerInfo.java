@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * Created by ldvsoft on 26.10.16.
+ * Peer info structure.
  */
 public class PeerInfo {
     private String name;

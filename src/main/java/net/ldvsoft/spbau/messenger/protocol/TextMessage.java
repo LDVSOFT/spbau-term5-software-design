@@ -6,7 +6,8 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * Created by ldvsoft on 26.10.16.
+ * Text message.
+ * Consists of the message itself and sending time.
  */
 public class TextMessage {
     private String text;

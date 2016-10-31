@@ -9,7 +9,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- * Created by ldvsoft on 30.10.16.
+ * Messenger starter.
+ * Opens Connection instance on given settings.
  */
 public class Starter {
     private static class SocketConnection implements Connection {
