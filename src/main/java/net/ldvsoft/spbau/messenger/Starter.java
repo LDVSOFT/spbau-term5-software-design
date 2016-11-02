@@ -1,6 +1,8 @@
 package net.ldvsoft.spbau.messenger;
 
 import net.ldvsoft.spbau.messenger.protocol.Connection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,17 +53,24 @@ public class Starter {
         }
     }
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Starter.class);
+
     private Starter() {
     }
 
     public static Connection startServer(int port) throws IOException {
+        LOGGER.info("Starting server at port {}.", port);
         ServerSocket serverSocket = new ServerSocket(port);
+        LOGGER.info("Started server, waiting for connection.");
         Socket socket = serverSocket.accept();
+        LOGGER.info("Client connected.");
         return new ServerSocketConnection(socket, serverSocket);
     }
 
     public static Connection startClient(String host, int port) throws IOException {
+        LOGGER.info("Connecting to server at {}:{}", host, port);
         Socket socket = new Socket(host, port);
+        LOGGER.info("Connected to server.");
         return new SocketConnection(socket);
     }
 }

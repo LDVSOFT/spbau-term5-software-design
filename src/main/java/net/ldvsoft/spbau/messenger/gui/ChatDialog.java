@@ -4,6 +4,8 @@ import net.ldvsoft.spbau.messenger.Messenger;
 import net.ldvsoft.spbau.messenger.protocol.Connection;
 import net.ldvsoft.spbau.messenger.protocol.PeerInfo;
 import net.ldvsoft.spbau.messenger.protocol.TextMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,9 +27,15 @@ class ChatDialog extends JDialog {
     private JTextField nameField;
     private JTextArea messagesArea;
     private JTextField messageField;
+    private Logger logger = LoggerFactory.getLogger(ChatDialog.class);
     private Messenger.Listener listener = new Messenger.Listener() {
         @Override
         public void onMessage(TextMessage s) {
+            logger.info("Received message \"{}\" at {} from {}.",
+                    s.getText(),
+                    s.getDate(),
+                    messenger.getPeer().getName()
+            );
             messagesArea.append(String.format(
                     "<<< (%s at %s) %s\n",
                     messenger.getPeer().getName(),
@@ -38,6 +46,10 @@ class ChatDialog extends JDialog {
 
         @Override
         public void onPeerInfo(PeerInfo s) {
+            logger.info("Received new peer name {}.",
+                    s.getName(),
+                    messenger.getPeer().getName()
+            );
             messagesArea.append(String.format(
                     "<<< (changed name to %s)\n",
                     s.getName()
@@ -46,6 +58,7 @@ class ChatDialog extends JDialog {
 
         @Override
         public void onBye() {
+            logger.info("Received bye.");
             messagesArea.append(String.format(
                     "<<< (%s left)\n",
                     messenger.getPeer().getName()
@@ -56,7 +69,8 @@ class ChatDialog extends JDialog {
 
         @Override
         public void onError(Exception e) {
-
+            logger.error("Received exception from messenger.", e);
+            GUIUtils.showErrorDialog(ChatDialog.this, e.getMessage());
         }
     };
 
@@ -69,7 +83,9 @@ class ChatDialog extends JDialog {
         public void actionPerformed(ActionEvent event) {
             setEnabled(false);
             try {
-                messenger.setName(nameField.getText());
+                String newName = nameField.getText();
+                logger.info("Setting new name \"{}\".", newName);
+                messenger.setName(newName);
             } catch (IOException e) {
                 GUIUtils.showErrorDialog(ChatDialog.this, e.getMessage());
             }
@@ -86,7 +102,9 @@ class ChatDialog extends JDialog {
         public void actionPerformed(ActionEvent event) {
             setEnabled(false);
             try {
-                TextMessage textMessage = messenger.sendMessage(messageField.getText());
+                String message = messageField.getText();
+                logger.info("Sending message \"{}\".", message);
+                TextMessage textMessage = messenger.sendMessage(message);
                 messageField.setText("");
                 messagesArea.append(String.format(
                         ">>> (%s at %s) %s\n",
@@ -148,19 +166,23 @@ class ChatDialog extends JDialog {
     void chat(String name, Connection connection) {
         try {
             messenger = new Messenger(name, connection, listener);
+            logger.info("Messaging started.");
             nameField.setText(name);
             addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
                     try {
+                        logger.info("Leaving chat.");
                         messenger.stop();
                     } catch (IOException e1) {
+                        logger.error("Error at closing.", e);
                         GUIUtils.showErrorDialog(ChatDialog.this, e1.getMessage());
                     }
                 }
             });
             setVisible(true);
         } catch (IOException e) {
+            logger.error("Error happened.", e);
             GUIUtils.showErrorDialog(this, e.getMessage());
         }
     }

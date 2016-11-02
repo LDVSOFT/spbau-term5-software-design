@@ -2,6 +2,8 @@ package net.ldvsoft.spbau.messenger.gui;
 
 import net.ldvsoft.spbau.messenger.Starter;
 import net.ldvsoft.spbau.messenger.protocol.Connection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,6 +38,7 @@ class StartFrame extends JFrame {
     private JTextField hostField;
     private JTextField portField;
     private boolean isServer;
+    private final Logger logger = LoggerFactory.getLogger(StartFrame.class);
 
     /**
      * This action describes start button behaviour.
@@ -55,14 +58,18 @@ class StartFrame extends JFrame {
                 port = Integer.parseInt(portField.getText());
                 Connection connection;
                 if (isServer) {
+                    logger.info("Waiting for connection...\n");
                     connection = Starter.startServer(port);
                 } else {
+                    logger.info("Connecting...\n");
                     connection = Starter.startClient(hostField.getText(), port);
                 }
+                logger.info("Connected.\n");
                 putValue(NAME, CHATTING);
                 new ChatDialog(StartFrame.this).chat(nameField.getText(), connection);
-                connection.close();
+                logger.info("Chat closed.\n");
             } catch (NumberFormatException | IOException e) {
+                logger.error("Error at starting chat.", e);
                 GUIUtils.showErrorDialog(StartFrame.this, e.getMessage());
             }
             putValue(NAME, START);

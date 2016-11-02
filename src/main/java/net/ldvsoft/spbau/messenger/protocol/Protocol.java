@@ -1,5 +1,8 @@
 package net.ldvsoft.spbau.messenger.protocol;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 
 /**
@@ -43,6 +46,7 @@ public class Protocol implements AutoCloseable {
     private Connection connection;
     private DataInputStream dis;
     private DataOutputStream dos;
+    private final Logger logger = LoggerFactory.getLogger(Protocol.class);
 
     public Protocol(Connection connection) throws IOException {
         this.connection = connection;
@@ -51,44 +55,55 @@ public class Protocol implements AutoCloseable {
     }
 
     public MessageType readMessageType() throws IOException {
-        return MessageType.getById(dis.readInt());
+        int id = dis.readInt();
+        logger.info("Received message type {}.", id);
+        return MessageType.getById(id);
     }
 
     private void writeMessageType(MessageType messageType) throws IOException {
-        dos.writeInt(messageType.getId());
+        int id = messageType.getId();
+        logger.info("Writing message type {}.", id);
+        dos.writeInt(id);
         dos.flush();
     }
 
     public PeerInfo readPeerInfo() throws IOException {
+        logger.info("Reading peer info.");
         return PeerInfo.readFrom(dis);
     }
 
     public void writePeerInfo(PeerInfo peerInfo) throws IOException {
+        logger.info("Writing peer info.");
         writeMessageType(MessageType.PEER_INFO);
         peerInfo.writeTo(dos);
         dos.flush();
     }
 
     public TextMessage readTextMessage() throws IOException {
+        logger.info("Reading text message.");
         return TextMessage.readFrom(dis);
     }
 
     public void writeTextMessage(TextMessage textMessage) throws IOException {
+        logger.info("Writing text message.");
         writeMessageType(MessageType.TEXT_MESSAGE);
         textMessage.writeTo(dos);
         dos.flush();
     }
 
     public void readBye() {
+        logger.info("Reading bye.");
         /* bye message is empty and has no body */
     }
 
     public void writeBye() throws IOException {
+        logger.info("Writing bye.");
         writeMessageType(MessageType.BYE);
         dos.flush();
     }
 
     public void close() throws IOException {
+        logger.info("Closing connection.");
         connection.close();
     }
 }
