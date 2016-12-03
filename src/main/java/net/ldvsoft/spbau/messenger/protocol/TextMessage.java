@@ -26,14 +26,14 @@ public class TextMessage {
         this.date = date;
     }
 
-    void writeTo(DataOutputStream dos) throws IOException {
-        dos.writeLong(date.getTime());
-        dos.writeUTF(text);
+    P2PMessenger.TextMessage toProto() {
+        return P2PMessenger.TextMessage.newBuilder()
+                .setText(text)
+                .setDate(date.getTime())
+                .build();
     }
 
-    static TextMessage readFrom(DataInputStream dis) throws IOException {
-        Date date = new Date(dis.readLong());
-        String text = dis.readUTF();
-        return new TextMessage(text, date);
+    static TextMessage fromProto(P2PMessenger.TextMessage proto) {
+        return new TextMessage(proto.getText(), new Date(proto.getDate()));
     }
 }

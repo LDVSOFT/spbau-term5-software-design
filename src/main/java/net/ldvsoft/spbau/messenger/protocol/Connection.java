@@ -1,5 +1,7 @@
 package net.ldvsoft.spbau.messenger.protocol;
 
+import io.grpc.stub.StreamObserver;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,18 +11,12 @@ import java.io.OutputStream;
  */
 public interface Connection extends AutoCloseable {
     /**
-     * Gets input stream to read from
-     * @return input stream
-     * @throws IOException if something goes wrong
+     * Starts chat
+     * @param reader reader to read messages
+     * @return writer to write messages
+     * @throws IOException in case of errors
      */
-    InputStream getInputStream() throws IOException;
-
-    /**
-     * Gets output stream to write to
-     * @return output stream
-     * @throws IOException if something goes wrong
-     */
-    OutputStream getOutputStream() throws IOException;
+    StreamObserver<P2PMessenger.Message> startChat(StreamObserver<P2PMessenger.Message> reader) throws IOException;
 
     /**
      * Closes the connection

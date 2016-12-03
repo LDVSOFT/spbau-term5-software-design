@@ -3,11 +3,14 @@ package net.ldvsoft.spbau.messenger.gui;
 import net.ldvsoft.spbau.messenger.Messenger;
 import net.ldvsoft.spbau.messenger.protocol.Connection;
 import net.ldvsoft.spbau.messenger.protocol.PeerInfo;
+import net.ldvsoft.spbau.messenger.protocol.StartedTyping;
 import net.ldvsoft.spbau.messenger.protocol.TextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -23,7 +26,7 @@ import java.text.SimpleDateFormat;
 class ChatDialog extends JDialog {
     private static final Format FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private Messenger messenger;
+    private volatile Messenger messenger;
     private JTextField nameField;
     private JTextArea messagesArea;
     private JTextField messageField;
@@ -57,6 +60,15 @@ class ChatDialog extends JDialog {
         }
 
         @Override
+        public void onStartedTyping(StartedTyping s) {
+            logger.info("Received start of typing at {}.", s.getDate());
+            messagesArea.append(String.format(
+                    "<<< (starts typing at %s)\n",
+                    FORMATTER.format(s.getDate())
+            ));
+        }
+
+        @Override
         public void onBye() {
             logger.info("Received bye.");
             messagesArea.append(String.format(
@@ -68,7 +80,7 @@ class ChatDialog extends JDialog {
         }
 
         @Override
-        public void onError(Exception e) {
+        public void onError(Throwable e) {
             logger.error("Received exception from messenger.", e);
             GUIUtils.showErrorDialog(ChatDialog.this, e.getMessage());
         }
@@ -150,6 +162,39 @@ class ChatDialog extends JDialog {
             panel.setLayout(new GridBagLayout());
             {
                 messageField = new JTextField();
+                messageField.getDocument().addDocumentListener(new DocumentListener() {
+                    private boolean wasEmpty = true;
+
+                    @Override
+                    public void insertUpdate(DocumentEvent e) {
+                        check();
+                    }
+
+                    @Override
+                    public void removeUpdate(DocumentEvent e) {
+                        check();
+                    }
+
+                    @Override
+                    public void changedUpdate(DocumentEvent e) {
+                        check();
+                    }
+
+                    private void check() {
+                        if (!messageField.getText().isEmpty()) {
+                            if (wasEmpty) {
+                                try {
+                                    messenger.startedTyping();
+                                } catch (IOException e) {
+                                    GUIUtils.showErrorDialog(ChatDialog.this, e.getMessage());
+                                }
+                            }
+                            wasEmpty = false;
+                        } else {
+                            wasEmpty = true;
+                        }
+                    }
+                });
                 panel.add(messageField, GUIUtils.getConstraints(0, 0, true));
             }
             {
@@ -166,6 +211,7 @@ class ChatDialog extends JDialog {
     void chat(String name, Connection connection) {
         try {
             messenger = new Messenger(name, connection, listener);
+            messenger.start();
             logger.info("Messaging started.");
             nameField.setText(name);
             addWindowListener(new WindowAdapter() {

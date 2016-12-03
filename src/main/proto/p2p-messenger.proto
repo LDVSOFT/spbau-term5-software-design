@@ -1,0 +1,27 @@
+syntax = "proto3";
+option java_package="net.ldvsoft.spbau.messenger.protocol";
+
+message TextMessage {
+    string text = 1;
+    int64 date = 2;
+}
+
+message PeerInfo {
+    string name = 1;
+}
+
+message StartedTyping {
+    int64 date = 1;
+}
+
+message Message {
+    oneof body {
+        PeerInfo peerInfo = 1;
+        TextMessage textMessage = 2;
+        StartedTyping startedTyping = 3;
+    }
+}
+
+service Messenger {
+    rpc chat(stream Message) returns (stream Message);
+}

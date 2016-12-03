@@ -4,6 +4,7 @@ import net.ldvsoft.spbau.messenger.Messenger;
 import net.ldvsoft.spbau.messenger.Starter;
 import net.ldvsoft.spbau.messenger.protocol.Connection;
 import net.ldvsoft.spbau.messenger.protocol.PeerInfo;
+import net.ldvsoft.spbau.messenger.protocol.StartedTyping;
 import net.ldvsoft.spbau.messenger.protocol.TextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Simple command-line client
@@ -23,7 +23,7 @@ public final class Main {
 
     private boolean working;
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-    private Messenger messenger;
+    private volatile Messenger messenger;
     private Logger logger = LoggerFactory.getLogger(Main.class);
     private Messenger.Listener listener = new Messenger.Listener() {
         @Override
@@ -54,6 +54,15 @@ public final class Main {
         }
 
         @Override
+        public void onStartedTyping(StartedTyping s) {
+            logger.info("Received start of typing at {}.", s.getDate());
+            System.out.printf(
+                    "<<< (starts typing at %s)\n",
+                    FORMATTER.format(s.getDate())
+            );
+        }
+
+        @Override
         public void onBye() {
             logger.info("Received bye.");
             System.out.printf("%s left. Press Enter to leave.", messenger.getPeer().getName());
@@ -61,7 +70,7 @@ public final class Main {
         }
 
         @Override
-        public void onError(Exception e) {
+        public void onError(Throwable e) {
             logger.error("Received exception from messenger.", e);
             System.out.printf("Something is wrong: %s\n", e.getMessage());
         }
@@ -113,6 +122,7 @@ public final class Main {
 
     private void messaging(String name, Connection connection) throws IOException {
         messenger = new Messenger(name, connection, listener);
+        messenger.start();
         logger.info("Messaging started.");
         System.out.printf("Connected!\nEnter text to type message, name to change name, or quit.\n");
         working = true;

@@ -2,6 +2,7 @@ package net.ldvsoft.spbau.messenger;
 
 import net.ldvsoft.spbau.messenger.protocol.Connection;
 import net.ldvsoft.spbau.messenger.protocol.PeerInfo;
+import net.ldvsoft.spbau.messenger.protocol.StartedTyping;
 import net.ldvsoft.spbau.messenger.protocol.TextMessage;
 import org.junit.Test;
 
@@ -44,11 +45,14 @@ public class MessengerTest {
 
         @Override
         public void onBye() {
-
         }
 
         @Override
-        public void onError(Exception e) {
+        public void onStartedTyping(StartedTyping s) {
+        }
+
+        @Override
+        public void onError(Throwable e) {
             fail("Exception: " + e.getMessage());
         }
 
@@ -75,11 +79,16 @@ public class MessengerTest {
         }
 
         @Override
+        public void onStartedTyping(StartedTyping s) {
+            // We ignore them here
+        }
+
+        @Override
         public void onBye() {
         }
 
         @Override
-        public void onError(Exception e) {
+        public void onError(Throwable e) {
             fail("Exception: " + e.getMessage());
         }
     }
@@ -102,10 +111,12 @@ public class MessengerTest {
 
         Buffer buffer = new Buffer();
         Messenger client = new Messenger("client", clientConnection, buffer);
+        client.start();
         assertEquals("client", client.getSelf().getName());
 
         Echo echo = new Echo();
         Messenger server = new Messenger("server", serverConnection, echo);
+        server.start();
         echo.setMessenger(server);
 
         Thread.sleep(1000);

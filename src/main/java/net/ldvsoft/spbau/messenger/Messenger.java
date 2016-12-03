@@ -1,9 +1,6 @@
 package net.ldvsoft.spbau.messenger;
 
-import net.ldvsoft.spbau.messenger.protocol.Connection;
-import net.ldvsoft.spbau.messenger.protocol.PeerInfo;
-import net.ldvsoft.spbau.messenger.protocol.Protocol;
-import net.ldvsoft.spbau.messenger.protocol.TextMessage;
+import net.ldvsoft.spbau.messenger.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,25 +18,62 @@ public class Messenger {
     public interface Listener {
         void onMessage(TextMessage s);
         void onPeerInfo(PeerInfo s);
+        void onStartedTyping(StartedTyping s);
         void onBye();
-        void onError(Exception e);
+        void onError(Throwable e);
     }
 
     private Protocol protocol;
+    private Connection connection;
+    private Listener listener;
     private PeerInfo self;
     private PeerInfo peer = new PeerInfo(DEFAULT_NAME);
     private boolean isWorking = true;
-    private Thread listenerThread;
-    private Listener listener;
     private final Logger logger = LoggerFactory.getLogger(Messenger.class);
 
-    public Messenger(String name, Connection connection, Listener listener) throws IOException {
-        protocol = new Protocol(connection);
-        logger.info("Starting messenger.");
-        setName(name);
+    public Messenger(String name, Connection connection, Listener listener) {
+        self = new PeerInfo(name);
+        this.connection = connection;
         this.listener = listener;
-        listenerThread = new Thread(this::listen);
-        listenerThread.start();
+    }
+
+    public void start() throws IOException {
+        Protocol.ProtocolListener protocolListener = new Protocol.ProtocolListener() {
+            @Override
+            public void onTextMessage(TextMessage message) {
+                logger.info("Peer sent text message \"{}\" at {}.", message.getText(), message.getDate());
+                listener.onMessage(message);
+            }
+
+            @Override
+            public void onPeerInfo(PeerInfo info) {
+                logger.info("Peer changed his name to {} (was {}).", info.getName(), peer.getName());
+                peer = info;
+                listener.onPeerInfo(info);
+            }
+
+            @Override
+            public void onStartedTyping(StartedTyping startedTyping) {
+                logger.info("Peer started typing at {}.", startedTyping.getDate());
+                listener.onStartedTyping(startedTyping);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                listener.onError(throwable);
+            }
+
+            @Override
+            public void onClose() {
+                logger.info("Peer closed chat.");
+                isWorking = false;
+                listener.onBye();
+                protocol.close();
+            }
+        };
+        protocol = new Protocol(connection, protocolListener);
+        logger.info("Starting messenger.");
+        setName(self.getName());
     }
 
     public TextMessage sendMessage(String text) throws IOException {
@@ -55,12 +89,17 @@ public class Messenger {
         protocol.writePeerInfo(self);
     }
 
+    public StartedTyping startedTyping() throws IOException {
+        logger.info("Started typing.");
+        StartedTyping startedTyping = new StartedTyping(new Date());
+        protocol.writeStartedTyping(startedTyping);
+        return startedTyping;
+    }
+
     public void stop() throws IOException {
         logger.info("Stopping.");
         if (isWorking) {
             isWorking = false;
-            listenerThread.interrupt();
-            protocol.writeBye();
             protocol.close();
         } else {
             logger.debug("Already stopped.");
@@ -73,43 +112,5 @@ public class Messenger {
 
     public PeerInfo getPeer() {
         return peer;
-    }
-
-    private void listen() {
-        try {
-            while (isWorking) {
-                logger.debug("Waiting for a new message...");
-                Protocol.MessageType messageType = protocol.readMessageType();
-                logger.debug("Received message of type {}.", messageType.toString());
-                switch (messageType) {
-                    case PEER_INFO:
-                        PeerInfo info = protocol.readPeerInfo();
-                        logger.info("Peer changed his name to {} (was {}).", info.getName(), peer.getName());
-                        peer = info;
-                        listener.onPeerInfo(info);
-                        break;
-                    case TEXT_MESSAGE:
-                        TextMessage message = protocol.readTextMessage();
-                        logger.info("Peer sent text message \"{}\" at {}.", message.getText(), message.getDate());
-                        listener.onMessage(message);
-                        break;
-                    case BYE:
-                        protocol.readBye();
-                        logger.info("Peer closed chat.");
-                        isWorking = false;
-                        listener.onBye();
-                        protocol.close();
-                        break;
-                }
-            }
-            logger.info("Listener stopped gracefully.");
-        } catch (IOException e) {
-            if (!isWorking || Thread.interrupted()) {
-                logger.info("Listener interrupted, stopping.");
-                return;
-            }
-            logger.debug("Listener caught exception!", e);
-            listener.onError(e);
-        }
     }
 }

@@ -18,11 +18,13 @@ public class PeerInfo {
         this.name = name;
     }
 
-    void writeTo(DataOutputStream dos) throws IOException {
-        dos.writeUTF(name);
+    P2PMessenger.PeerInfo toProto() {
+        return P2PMessenger.PeerInfo.newBuilder()
+                .setName(name)
+                .build();
     }
 
-    static PeerInfo readFrom(DataInputStream dis) throws IOException {
-        return new PeerInfo(dis.readUTF());
+    static PeerInfo fromProto(P2PMessenger.PeerInfo proto) {
+        return new PeerInfo(proto.getName());
     }
 }
