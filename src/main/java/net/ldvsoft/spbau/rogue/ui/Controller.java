@@ -3,7 +3,7 @@ package net.ldvsoft.spbau.rogue.ui;
 import com.googlecode.lanterna.input.KeyStroke;
 import net.ldvsoft.spbau.rogue.content.Actions;
 import net.ldvsoft.spbau.rogue.content.Generator;
-import net.ldvsoft.spbau.rogue.content.Player;
+import net.ldvsoft.spbau.rogue.model.Player;
 import net.ldvsoft.spbau.rogue.model.Action;
 import net.ldvsoft.spbau.rogue.model.Direction;
 import net.ldvsoft.spbau.rogue.model.GameStatus;

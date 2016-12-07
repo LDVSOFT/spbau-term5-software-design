@@ -61,7 +61,7 @@ public class Actions {
             Creature targetCreature = null;
             for (Creature otherCreature: gameStatus.getCreatures()) {
                 if (otherCreature != creature && otherCreature.getPosition().equals(target)) {
-                    targetCreature = creature;
+                    targetCreature = otherCreature;
                     break;
                 }
             }

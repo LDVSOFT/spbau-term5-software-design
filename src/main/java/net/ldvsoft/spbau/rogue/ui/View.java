@@ -9,7 +9,7 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
-import net.ldvsoft.spbau.rogue.content.Player;
+import net.ldvsoft.spbau.rogue.model.Player;
 import net.ldvsoft.spbau.rogue.model.Creature;
 import net.ldvsoft.spbau.rogue.model.GameStatus;
 import org.slf4j.Logger;
@@ -91,8 +91,8 @@ class View {
         graphics.putString(player.getPosition().getX() - baseX, player.getPosition().getY() - baseY, "@", SGR.BOLD);
         graphics.putString(0, rows - 1, lastMessage);
         String status = String.format(
-                "HP %d/%d Pos: %d %d", player.getHealth(), player.getStat(Creature.StatType.MAX_HEALTH).getValue(),
-                player.getPosition().getX(), player.getPosition().getY()
+                "HP %d/%d Pos: %d %d Time: %d", player.getHealth(), player.getStat(Creature.StatType.MAX_HEALTH).getValue(),
+                player.getPosition().getX(), player.getPosition().getY(), gameStatus.getTime()
         );
         graphics.putString(columns - status.length(), rows - 1, status);
         try {

@@ -1,9 +1,6 @@
 package net.ldvsoft.spbau.rogue.content;
 
-import net.ldvsoft.spbau.rogue.model.Creature;
-import net.ldvsoft.spbau.rogue.model.Direction;
-import net.ldvsoft.spbau.rogue.model.GameStatus;
-import net.ldvsoft.spbau.rogue.model.Position;
+import net.ldvsoft.spbau.rogue.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

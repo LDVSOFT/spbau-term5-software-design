@@ -3,7 +3,7 @@ package net.ldvsoft.spbau.rogue.model;
 /**
  * Created by LDVSOFT on 04.12.2016.
  */
-public class Position {
+public final class Position implements Comparable<Position> {
     private int x;
     private int y;
 
@@ -29,14 +29,32 @@ public class Position {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Position))
-            return false;
-        Position that = (Position) obj;
-        return this.x == that.x && this.y == that.y;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Position position = (Position) o;
+
+        if (x != position.x) return false;
+        return y == position.y;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = x;
+        result = 31 * result + y;
+        return result;
     }
 
     public boolean isInvalid(int width, int height) {
         return x < 0 || y < 0 || x >= width || y >= height;
+    }
+
+    @Override
+    public int compareTo(Position that) {
+        if (this.y != that.y)
+            return Integer.compare(this.y, that.y);
+        return Integer.compare(this.x, that.x);
     }
 }

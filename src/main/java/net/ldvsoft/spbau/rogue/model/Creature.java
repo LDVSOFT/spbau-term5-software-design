@@ -1,5 +1,7 @@
 package net.ldvsoft.spbau.rogue.model;
 
+import java.sql.Array;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +73,17 @@ public abstract class Creature {
 
     public boolean canSee(Position pos) {
         return canSee(pos.getY(), pos.getX());
+    }
+
+    public boolean canGoTo(Position pos, Position... allowedCreaturesPositions) {
+        if (!gameStatus.getTileAt(pos).canWalk(this))
+            return false;
+        if (Arrays.asList(allowedCreaturesPositions).contains(pos))
+            return true;
+        for (Creature creature: gameStatus.getCreatures())
+            if (creature.getPosition() == pos)
+                return false;
+        return true;
     }
 
     public List<Creature> getSeenCreatures() {

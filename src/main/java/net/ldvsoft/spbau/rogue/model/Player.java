@@ -1,12 +1,7 @@
-package net.ldvsoft.spbau.rogue.content;
-
-import net.ldvsoft.spbau.rogue.model.Action;
-import net.ldvsoft.spbau.rogue.model.Creature;
-import net.ldvsoft.spbau.rogue.model.GameStatus;
-import net.ldvsoft.spbau.rogue.model.Position;
+package net.ldvsoft.spbau.rogue.model;
 
 /**
- * Created by LDVSOFT on 05.12.2016.
+ * Player creature, controlled by user.
  */
 public class Player extends Creature {
     public interface ControllerPlayerProxy {
@@ -20,7 +15,7 @@ public class Player extends Creature {
         super(gameStatus, position, health);
         this.controller = controller;
         getStat(StatType.MELEE_ATTACK).setBaseValue(5);
-        getStat(StatType.VIEW_DISTANCE).setBaseValue(15);
+        getStat(StatType.VIEW_DISTANCE).setBaseValue(10);
     }
 
     @Override

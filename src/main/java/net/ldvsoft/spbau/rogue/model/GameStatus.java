@@ -24,12 +24,10 @@ public class GameStatus {
         for (Tile[] row: tiles)
             for (Tile tile: row)
                 tile.tick();
-        for (Creature creature: creatures) {
-            if (creature.getHealth() > 0) {
-                creature.tick();
-            }
-        }
-        creatures.removeIf(creature -> creature.getHealth() < 0);
+        creatures.stream()
+                .filter(creature -> creature.getHealth() > 0)
+                .forEach(Creature::tick);
+        creatures.removeIf(creature -> creature.getHealth() <= 0);
         time++;
     }
 
