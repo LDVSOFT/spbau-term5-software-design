@@ -1,0 +1,38 @@
+package net.ldvsoft.spbau.rogue.model;
+
+/**
+ * Created by LDVSOFT on 04.12.2016.
+ */
+public enum  Direction {
+    NONE(0, 0),
+    NORTH    ( 0, -1),
+    NORTHWEST(-1, -1),
+    WEST     (-1,  0),
+    SOUTHWEST(-1, +1),
+    SOUTH    ( 0, +1),
+    SOUTHEAST(+1, +1),
+    EAST     (+1,  0),
+    NORTHEAST(+1, -1);
+
+    private final int dx;
+    private final int dy;
+
+    Direction(int dx, int dy) {
+        this.dx = dx;
+        this.dy = dy;
+    }
+
+    public int getDx() {
+        return dx;
+    }
+
+    public int getDy() {
+        return dy;
+    }
+
+    public Direction negate() {
+        if (this == NONE)
+            return NONE;
+        return values()[1 + (ordinal() + 3) % 8];
+    }
+}
