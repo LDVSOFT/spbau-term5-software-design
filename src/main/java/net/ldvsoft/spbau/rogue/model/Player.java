@@ -24,6 +24,11 @@ public class Player extends Creature {
     }
 
     @Override
+    public String getRenderName() {
+        return "player";
+    }
+
+    @Override
     public void report(String message) {
         controller.sendMessage(this, message);
     }

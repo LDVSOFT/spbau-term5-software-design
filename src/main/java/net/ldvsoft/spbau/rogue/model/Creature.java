@@ -124,14 +124,20 @@ public abstract class Creature {
     }
 
     public void damageHealth(int damage) {
-        health -= damage;
+        health = Math.min(getStat(StatType.MAX_HEALTH).getValue(), health - damage);
         if (health < 0)
             report("You died!");
+    }
+
+    public void healHealth(int heal) {
+        damageHealth(-heal);
     }
 
     public GameStatus getGameStatus() {
         return gameStatus;
     }
+
+    public abstract String getRenderName();
 
     public void report(String message) {
     }

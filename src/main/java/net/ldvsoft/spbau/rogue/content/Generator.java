@@ -17,6 +17,8 @@ public final class Generator {
     private static final double ROOM_SIZE_DEV = 2;
     private static final double ROOMS_PART = 1.6;
     private static final Logger LOGGER = LoggerFactory.getLogger(Generator.class);
+    private static final int MONSTERS = 10;
+    private static final int ALTARS = 5;
     private int height;
     private int width;
     private Random random;
@@ -32,8 +34,8 @@ public final class Generator {
     }
 
     private void placeWall(int y, int x) {
-        if (gameStatus.getTileAt(y, x) == Tiles.EMPTY)
-            gameStatus.setTileAt(y, x, Tiles.WALL);
+        if (gameStatus.getTileAt(y, x) == FlyweightTile.EMPTY)
+            gameStatus.setTileAt(y, x, FlyweightTile.WALL);
     }
 
     private void bfs(Position start) {
@@ -44,20 +46,23 @@ public final class Generator {
             if (was[position.getY()][position.getX()])
                 continue;
             was[position.getY()][position.getX()] = true;
-            if (gameStatus.getTileAt(position) == Tiles.WALL)
+            if (gameStatus.getTileAt(position) == FlyweightTile.WALL)
                 continue;
             for (Direction d: Direction.values()) {
                 Position alt = position.move(d);
                 if (alt.isInvalid(width, height))
                     continue;
-                if (gameStatus.getTileAt(alt) == Tiles.EMPTY)
+                if (gameStatus.getTileAt(alt) == FlyweightTile.EMPTY)
                     continue;
                 queue.add(alt);
             }
         }
     }
 
-    public GameStatus generateWorld(Player.ControllerPlayerProxy controllerPlayerProxy) {
+    public GameStatus generateWorld(
+            Player.ControllerPlayerProxy controllerPlayerProxy,
+            ExitTile.ControllerExitProxy exitProxy
+    ) {
         LOGGER.info("Generating world {} x {}...", height, width);
 
         gameStatus = new GameStatus(height, width);
@@ -65,7 +70,7 @@ public final class Generator {
 
         for (int i = 0; i != height; i++) {
             for (int j = 0; j != width; j++) {
-                gameStatus.setTileAt(i, j, Tiles.EMPTY);
+                gameStatus.setTileAt(i, j, FlyweightTile.EMPTY);
             }
         }
         for (int it = 0; it != roomsCnt; it++) {
@@ -78,7 +83,7 @@ public final class Generator {
             int roomY = random.nextInt(height - roomHeight);
             for (int i = 1; i < roomHeight - 1; i++) {
                 for (int j = 1; j < roomWidth - 1; j++) {
-                    gameStatus.setTileAt(roomY + i, roomX + j, Tiles.FLOOR);
+                    gameStatus.setTileAt(roomY + i, roomX + j, FlyweightTile.FLOOR);
                 }
             }
             for (int i = 0; i != roomHeight; i++) {
@@ -91,16 +96,22 @@ public final class Generator {
             }
         }
         player = generatePlayer(controllerPlayerProxy);
-        for (int i = 0; i != 10; i++)
-            gameStatus.spawnCreature(new Monster(gameStatus, getPosition()));
         was = new boolean[height][width];
         bfs(player.getPosition());
         for (int i = 0; i != height; i++) {
             for (int j = 0; j != width; j++) {
                 if (!was[i][j])
-                    gameStatus.setTileAt(i, j, Tiles.EMPTY);
+                    gameStatus.setTileAt(i, j, FlyweightTile.EMPTY);
             }
         }
+        for (int i = 0; i != MONSTERS; i++)
+            gameStatus.spawnCreature(new Monster(gameStatus, getPosition()));
+        for (int i = 0; i != ALTARS; i++) {
+            Position position = getPosition();
+            gameStatus.setTileAt(position, new RegenerationAltar(gameStatus, position));
+        }
+        Position position = getPosition();
+        gameStatus.setTileAt(position, new ExitTile(gameStatus, position, exitProxy));
         return gameStatus;
     }
 
@@ -108,7 +119,7 @@ public final class Generator {
         Position position = null;
         while (position == null) {
             position = new Position(random.nextInt(width), random.nextInt(height));
-            if (gameStatus.getTileAt(position) != Tiles.FLOOR)
+            if (gameStatus.getTileAt(position) != FlyweightTile.FLOOR)
                 position = null;
             for (Creature c: gameStatus.getCreatures())
                 if (c.getPosition() == position) {

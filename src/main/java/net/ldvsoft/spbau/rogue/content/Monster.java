@@ -37,4 +37,9 @@ final class Monster extends Creature {
         Direction whereToGo = Navigator.getInstance().goTo(this, target.getPosition());
         return new Actions.StepOrAttackAction(getGameStatus(), this, getPosition().move(whereToGo));
     }
+
+    @Override
+    public String getRenderName() {
+        return "monster";
+    }
 }

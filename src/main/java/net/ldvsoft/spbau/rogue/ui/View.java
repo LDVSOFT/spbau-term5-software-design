@@ -12,6 +12,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 import net.ldvsoft.spbau.rogue.model.Player;
 import net.ldvsoft.spbau.rogue.model.Creature;
 import net.ldvsoft.spbau.rogue.model.GameStatus;
+import net.ldvsoft.spbau.rogue.model.Tile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ import static java.lang.Math.min;
  */
 class View {
     private static final Logger LOGGER = LoggerFactory.getLogger(View.class);
+    private final RendererFactory rendererFactory = new RendererFactory();
     private Controller controller;
     private Screen screen;
     private TextGraphics graphics;
@@ -64,28 +66,21 @@ class View {
                 if (player.getRememberedMap()[mapY][mapX] == null) {
                     continue;
                 }
+
                 boolean canSee = player.canSee(mapY, mapX);
+                Tile tile = gameStatus.getTileAt(mapY, mapX);
+                rendererFactory.getTileRenderer(tile.getRenderName()).renderTile(tile, j, i, graphics, canSee);
                 graphics.setForegroundColor(canSee ? TextColor.ANSI.WHITE : TextColor.ANSI.BLUE);
-                switch (gameStatus.getTileAt(mapY, mapX).getName()) {
-                    case "wall":
-                        graphics.putString(j, i, "#");
-                        break;
-                    case "floor":
-                        graphics.putString(j, i, ".");
-                        break;
-                    case "empty":
-                        graphics.putString(j, i, " ");
-                        break;
-                    default:
-                        graphics.setForegroundColor(TextColor.ANSI.RED);
-                        graphics.putString(j, i, "?");
-                        break;
-                }
             }
         }
-        graphics.setForegroundColor(TextColor.ANSI.YELLOW);
-        for (Creature creature: player.getSeenCreatures()) {
-            graphics.putString(creature.getPosition().getX() - baseX, creature.getPosition().getY() - baseY, "X", SGR.BOLD);
+        graphics.setForegroundColor(TextColor.ANSI.RED);
+        for (Creature creature: gameStatus.getCreatures()) {
+            if (!player.canSee(creature.getPosition())) {
+                continue;
+            }
+            int mapX = creature.getPosition().getX() - baseX;
+            int mapY = creature.getPosition().getY() - baseY;
+            rendererFactory.getCreatureRenderer(creature.getRenderName()).renderCreature(creature, mapX, mapY, graphics);
         }
         graphics.setForegroundColor(TextColor.ANSI.WHITE);
         graphics.putString(player.getPosition().getX() - baseX, player.getPosition().getY() - baseY, "@", SGR.BOLD);

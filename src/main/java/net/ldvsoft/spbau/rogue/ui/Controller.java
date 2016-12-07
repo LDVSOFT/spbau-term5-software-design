@@ -57,6 +57,7 @@ final class Controller {
                     }
                     switch (c) {
                         case 'q':
+                            view.addMessage("You have lost hope...");
                             isRunning = false;
                             return null;
                         case '8':
@@ -84,7 +85,7 @@ final class Controller {
                 }
             }
         };
-        gameStatus = generator.generateWorld(controllerPlayerProxy);
+        gameStatus = generator.generateWorld(controllerPlayerProxy, () -> isRunning = false);
         player = generator.getPlayer();
         gameStatus.spawnCreature(player);
         view = new View(this);
@@ -104,7 +105,6 @@ final class Controller {
                 }
             isRunning = isRunning && player.getHealth() > 0;
         }
-        view.addMessage("Game over!");
         try {
             view.getKeystroke();
         } catch (IOException ignored) {

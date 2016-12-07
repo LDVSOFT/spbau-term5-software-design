@@ -21,7 +21,7 @@ public final class Main {
     }
 
     private void main() throws IOException {
-        Generator generator = new Generator(100, 100, 15);
+        Generator generator = new Generator(100, 100, System.currentTimeMillis());
         Controller controller = new Controller(generator);
         controller.work();
     }

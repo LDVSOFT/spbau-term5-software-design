@@ -67,7 +67,7 @@ public class Actions {
             }
             if (targetCreature == null) {
                 creature.setPosition(target);
-                creature.report("");
+                creature.report(gameStatus.getTileAt(target).getDescription());
             } else {
                 targetCreature.damageHealth(creature.getStat(Creature.StatType.MELEE_ATTACK).getValue());
                 creature.report(String.format("Dealt damage, health is at %d.", targetCreature.getHealth()));
