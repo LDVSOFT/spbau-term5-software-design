@@ -4,9 +4,12 @@ import net.ldvsoft.spbau.rogue.model.Creature;
 import net.ldvsoft.spbau.rogue.model.Tile;
 
 /**
- * Created by LDVSOFT on 04.12.2016.
+ * Tiles, pretty simple ones
  */
-public class Tiles {
+final class Tiles {
+    private Tiles() {
+    }
+
     private static final class FlyweightTile implements Tile {
         private final String name;
         private final boolean walkable;

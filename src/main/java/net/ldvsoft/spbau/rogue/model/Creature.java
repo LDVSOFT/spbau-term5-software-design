@@ -1,6 +1,5 @@
 package net.ldvsoft.spbau.rogue.model;
 
-import java.sql.Array;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;

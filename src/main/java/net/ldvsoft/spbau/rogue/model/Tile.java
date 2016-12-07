@@ -5,6 +5,7 @@ package net.ldvsoft.spbau.rogue.model;
  */
 public interface Tile {
     String getName();
+
     boolean canWalk(Creature entity);
 
     boolean canSeeThrough(Creature creature);

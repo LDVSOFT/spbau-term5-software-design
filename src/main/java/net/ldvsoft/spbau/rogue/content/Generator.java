@@ -9,7 +9,7 @@ import java.util.Queue;
 import java.util.Random;
 
 /**
- * Created by LDVSOFT on 05.12.2016.
+ * Generates game level
  */
 public final class Generator {
     private static final int BASE_HEALTH = 30;
@@ -92,7 +92,7 @@ public final class Generator {
         }
         player = generatePlayer(controllerPlayerProxy);
         for (int i = 0; i != 10; i++)
-            gameStatus.spawnCreature(new Enemies.Monster(gameStatus, getPosition()));
+            gameStatus.spawnCreature(new Monster(gameStatus, getPosition()));
         was = new boolean[height][width];
         bfs(player.getPosition());
         for (int i = 0; i != height; i++) {

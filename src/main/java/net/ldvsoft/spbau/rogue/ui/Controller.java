@@ -17,6 +17,7 @@ final class Controller {
     private View view;
     private GameStatus gameStatus;
     private Player player;
+    private boolean isRunning = true;
 
     Controller(Generator generator) throws IOException {
         Player.ControllerPlayerProxy controllerPlayerProxy = new Player.ControllerPlayerProxy() {
@@ -55,6 +56,9 @@ final class Controller {
                             break;
                     }
                     switch (c) {
+                        case 'q':
+                            isRunning = false;
+                            return null;
                         case '8':
                             return new Actions.StepOrAttackAction(gameStatus, self, self.getPosition().move(Direction.NORTH));
                         case '7':
@@ -87,7 +91,7 @@ final class Controller {
     }
 
     void work() {
-        while (player.getHealth() > 0) {
+        while (isRunning) {
             long time = System.currentTimeMillis();
             view.tick();
             gameStatus.tick();
@@ -98,7 +102,9 @@ final class Controller {
                     Thread.sleep(time);
                 } catch (InterruptedException ignored) {
                 }
+            isRunning = isRunning && player.getHealth() > 0;
         }
+        view.addMessage("Game over!");
         try {
             view.getKeystroke();
         } catch (IOException ignored) {

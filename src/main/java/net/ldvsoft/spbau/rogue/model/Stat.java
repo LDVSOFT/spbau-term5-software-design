@@ -4,7 +4,7 @@ import java.util.NavigableSet;
 import java.util.TreeSet;
 
 /**
- * Created by LDVSOFT on 05.12.2016.
+ * One stat of a character
  */
 public class Stat {
     private int baseValue;

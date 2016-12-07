@@ -1,7 +1,7 @@
 package net.ldvsoft.spbau.rogue.model;
 
 /**
- * Created by LDVSOFT on 04.12.2016.
+ * Position of something on a level.
  */
 public final class Position implements Comparable<Position> {
     private int x;
@@ -35,8 +35,7 @@ public final class Position implements Comparable<Position> {
 
         Position position = (Position) o;
 
-        if (x != position.x) return false;
-        return y == position.y;
+        return x == position.x && y == position.y;
 
     }
 
@@ -51,6 +50,7 @@ public final class Position implements Comparable<Position> {
         return x < 0 || y < 0 || x >= width || y >= height;
     }
 
+    @SuppressWarnings("SuspiciousNameCombination")
     @Override
     public int compareTo(Position that) {
         if (this.y != that.y)

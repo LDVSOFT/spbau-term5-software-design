@@ -1,7 +1,7 @@
 package net.ldvsoft.spbau.rogue.model;
 
 /**
- * Created by LDVSOFT on 04.12.2016.
+ * Directions in which one can move around.
  */
 public enum  Direction {
     NONE     ( 0,  0, 0),

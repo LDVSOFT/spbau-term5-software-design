@@ -5,7 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by LDVSOFT on 02.12.2016.
+ * Game status main class.
+ * Contains the whole current state.
  */
 public class GameStatus {
     private int time = 0;
