@@ -38,7 +38,7 @@ class RendererFactory {
                 graphics.setForegroundColor(fgColor);
                 graphics.setBackgroundColor(bgColor);
             } else {
-                graphics.setBackgroundColor(BG_UNSEEN);
+                graphics.setBackgroundColor(bgColor == DEFAULT ? DEFAULT : BG_UNSEEN);
                 graphics.setForegroundColor(FG_UNSEEN);
             }
             graphics.putString(column, row, String.valueOf(c), Arrays.asList(sgrs));
@@ -62,7 +62,7 @@ class RendererFactory {
     private static final SimpleRenderer NO_CREATURE_RENDERER = new SimpleRenderer(RED, BG_DEFAULT, '?', BOLD);
 
     static {
-        TILE_RENDERER_MAP.put("empty", new SimpleRenderer(DEFAULT, BG_DEFAULT, ' '));
+        TILE_RENDERER_MAP.put("empty", new SimpleRenderer(DEFAULT, DEFAULT   , ' '));
         TILE_RENDERER_MAP.put("wall" , new SimpleRenderer(WHITE  , BG_DEFAULT, '#'));
         TILE_RENDERER_MAP.put("floor", new SimpleRenderer(DEFAULT, BG_DEFAULT, '.'));
         TILE_RENDERER_MAP.put("altar", new SimpleRenderer(YELLOW , WHITE     , '+', BOLD));

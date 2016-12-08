@@ -1,6 +1,6 @@
 package net.ldvsoft.spbau.rogue.ui;
 
-import com.googlecode.lanterna.SGR;
+import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
@@ -9,9 +9,9 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
-import net.ldvsoft.spbau.rogue.model.Player;
 import net.ldvsoft.spbau.rogue.model.Creature;
 import net.ldvsoft.spbau.rogue.model.GameStatus;
+import net.ldvsoft.spbau.rogue.model.Player;
 import net.ldvsoft.spbau.rogue.model.Tile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +35,7 @@ class View {
     View(Controller controller) throws IOException {
         Terminal terminal = new DefaultTerminalFactory()
                 .setInitialTerminalSize(new TerminalSize(80, 50))
+                .setForceTextTerminal(true)
                 .createTerminal();
         screen = new TerminalScreen(terminal);
         screen.setCursorPosition(null);
@@ -45,25 +46,27 @@ class View {
 
     void tick() {
         screen.doResizeIfNecessary();
-        screen.clear();
         int rows = screen.getTerminalSize().getRows();
         int columns = screen.getTerminalSize().getColumns();
+
         GameStatus gameStatus = controller.getGameStatus();
         Player player = controller.getPlayer();
 
-        int baseX = player.getPosition().getX() - columns / 2;
-        int baseY = player.getPosition().getY() - (rows - 1) / 2;
-        baseX = min(gameStatus.getWidth() - columns, baseX);
-        baseY = min(gameStatus.getHeight() - rows + 1, baseY);
+        int displayRows = rows - 1;
+        int dislayColumns = columns;
+        int baseX = player.getPosition().getX() - dislayColumns / 2;
+        int baseY = player.getPosition().getY() - displayRows / 2;
+        baseX = min(gameStatus.getWidth() - dislayColumns, baseX);
+        baseY = min(gameStatus.getHeight() - displayRows, baseY);
         baseX = max(0, baseX);
         baseY = max(0, baseY);
-        int displayedWidth = min(columns, gameStatus.getWidth() - baseX);
-        int displayedHeight = min(rows - 1, gameStatus.getHeight() - baseY);
-        for (int i = 0; i != displayedHeight; i++) {
-            for (int j = 0; j != displayedWidth; j++) {
+        for (int i = 0; i < displayRows; i++) {
+            for (int j = 0; j < dislayColumns; j++) {
                 int mapX = j + baseX;
                 int mapY = i + baseY;
-                if (player.getRememberedMap()[mapY][mapX] == null) {
+                if (mapX < 0 || mapY < 0 || mapX >= gameStatus.getWidth() || mapY >= gameStatus.getHeight()
+                        || player.getRememberedMap()[mapY][mapX] == null) {
+                    rendererFactory.getTileRenderer("empty").renderTile(null, j, i, graphics, false);
                     continue;
                 }
 
@@ -82,14 +85,16 @@ class View {
             int mapY = creature.getPosition().getY() - baseY;
             rendererFactory.getCreatureRenderer(creature.getRenderName()).renderCreature(creature, mapX, mapY, graphics);
         }
+
         graphics.setForegroundColor(TextColor.ANSI.WHITE);
-        graphics.putString(player.getPosition().getX() - baseX, player.getPosition().getY() - baseY, "@", SGR.BOLD);
-        graphics.putString(0, rows - 1, lastMessage);
+        graphics.setBackgroundColor(TextColor.ANSI.DEFAULT);
+        graphics.fillRectangle(new TerminalPosition(0, displayRows), new TerminalSize(columns, 1), ' ');
+        graphics.putString(0, displayRows, lastMessage);
         String status = String.format(
                 "HP %d/%d Pos: %d %d Time: %d", player.getHealth(), player.getStat(Creature.StatType.MAX_HEALTH).getValue(),
                 player.getPosition().getX(), player.getPosition().getY(), gameStatus.getTime()
         );
-        graphics.putString(columns - status.length(), rows - 1, status);
+        graphics.putString(columns - status.length(), displayRows, status);
         try {
             screen.refresh();
         } catch (IOException e) {
