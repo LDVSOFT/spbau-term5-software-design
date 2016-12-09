@@ -22,13 +22,13 @@ public class GameStatus {
     }
 
     public void tick() {
-        for (Tile[] row: tiles)
-            for (Tile tile: row)
-                tile.tick();
         creatures.stream()
                 .filter(creature -> creature.getHealth() > 0)
                 .forEach(Creature::tick);
         creatures.removeIf(creature -> creature.getHealth() <= 0);
+        for (Tile[] row: tiles)
+            for (Tile tile: row)
+                tile.tick();
         time++;
     }
 
