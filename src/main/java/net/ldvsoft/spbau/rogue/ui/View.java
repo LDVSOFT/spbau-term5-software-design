@@ -35,7 +35,6 @@ class View {
     View(Controller controller) throws IOException {
         Terminal terminal = new DefaultTerminalFactory()
                 .setInitialTerminalSize(new TerminalSize(80, 50))
-                .setForceTextTerminal(true)
                 .createTerminal();
         screen = new TerminalScreen(terminal);
         screen.setCursorPosition(null);
