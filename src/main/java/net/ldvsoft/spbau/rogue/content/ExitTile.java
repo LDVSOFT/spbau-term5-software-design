@@ -6,15 +6,15 @@ import net.ldvsoft.spbau.rogue.model.*;
  * Exit tile. Will complete the game when no one is left except the player.
  */
 class ExitTile implements Tile {
-    public interface ControllerExitProxy {
+    public interface ControllerExitFacade {
         void win();
     }
 
     private final GameStatus gameStatus;
     private final Position position;
-    private final ControllerExitProxy controller;
+    private final ControllerExitFacade controller;
 
-    ExitTile(GameStatus gameStatus, Position position, ControllerExitProxy controller) {
+    ExitTile(GameStatus gameStatus, Position position, ControllerExitFacade controller) {
         this.gameStatus = gameStatus;
         this.position = position;
         this.controller = controller;

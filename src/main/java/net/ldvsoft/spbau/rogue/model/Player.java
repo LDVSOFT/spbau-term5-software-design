@@ -4,14 +4,14 @@ package net.ldvsoft.spbau.rogue.model;
  * Player creature, controlled by user.
  */
 public class Player extends Creature {
-    public interface ControllerPlayerProxy {
+    public interface ControllerPlayerFacade {
         void sendMessage(Player self, String text);
         Action promptAction(Player self);
     }
 
-    private ControllerPlayerProxy controller;
+    private ControllerPlayerFacade controller;
 
-    public Player(ControllerPlayerProxy controller, GameStatus gameStatus, Position position, int health) {
+    public Player(ControllerPlayerFacade controller, GameStatus gameStatus, Position position, int health) {
         super(gameStatus, position, health);
         this.controller = controller;
         getStat(StatType.MELEE_ATTACK).setBaseValue(5);

@@ -20,7 +20,7 @@ final class Controller {
     private boolean isRunning = true;
 
     Controller(Generator generator) throws IOException {
-        Player.ControllerPlayerProxy controllerPlayerProxy = new Player.ControllerPlayerProxy() {
+        Player.ControllerPlayerFacade controllerPlayerFacade = new Player.ControllerPlayerFacade() {
             @Override
             public void sendMessage(Player self, String text) {
                 view.addMessage(text);
@@ -85,7 +85,7 @@ final class Controller {
                 }
             }
         };
-        gameStatus = generator.generateWorld(controllerPlayerProxy, () -> isRunning = false);
+        gameStatus = generator.generateWorld(controllerPlayerFacade, () -> isRunning = false);
         player = generator.getPlayer();
         gameStatus.spawnCreature(player);
         view = new View(this);

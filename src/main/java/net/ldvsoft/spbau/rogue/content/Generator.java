@@ -60,8 +60,8 @@ public final class Generator {
     }
 
     public GameStatus generateWorld(
-            Player.ControllerPlayerProxy controllerPlayerProxy,
-            ExitTile.ControllerExitProxy exitProxy
+            Player.ControllerPlayerFacade controllerPlayerFacade,
+            ExitTile.ControllerExitFacade exitProxy
     ) {
         LOGGER.info("Generating world {} x {}...", height, width);
 
@@ -95,7 +95,7 @@ public final class Generator {
                 placeWall(roomY + roomHeight - 1, roomX + j);
             }
         }
-        player = generatePlayer(controllerPlayerProxy);
+        player = generatePlayer(controllerPlayerFacade);
         was = new boolean[height][width];
         bfs(player.getPosition());
         for (int i = 0; i != height; i++) {
@@ -130,9 +130,9 @@ public final class Generator {
         return position;
     }
 
-    private Player generatePlayer(Player.ControllerPlayerProxy controllerPlayerProxy) {
+    private Player generatePlayer(Player.ControllerPlayerFacade controllerPlayerFacade) {
         LOGGER.info("Generating player...");
-        return new Player(controllerPlayerProxy, gameStatus, getPosition(), BASE_HEALTH);
+        return new Player(controllerPlayerFacade, gameStatus, getPosition(), BASE_HEALTH);
     }
 
     public Player getPlayer() {
