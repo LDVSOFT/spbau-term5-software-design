@@ -46,16 +46,11 @@ public class GrepCommand implements Command {
             BufferedReader reader = new BufferedReader(new InputStreamReader(fileIn));
             String s;
             while ((s = reader.readLine()) != null) {
-                if (buffer.size() < appendLines + 1) {
-                    buffer.add(s);
-                } else {
-                    Collections.rotate(buffer, -1);
-                    buffer.set(appendLines, s);
+                buffer.add(s);
+                if (buffer.size() == appendLines + 1) {
                     tryMatch(buffer, pattern, appendLines, out);
+                    buffer.remove(0);
                 }
-            }
-            if (buffer.size() == appendLines + 1) {
-                buffer.remove(0);
             }
             while (!buffer.isEmpty()) {
                 tryMatch(buffer, pattern, appendLines, out);
